@@ -1,5 +1,7 @@
 package main.java.hr.java.covidportal.model;
 
+import java.util.Set;
+
 /**
  * Služi za definiranje instanci klase Bolest
  *
@@ -8,7 +10,7 @@ package main.java.hr.java.covidportal.model;
  */
 
 public class Bolest extends ImenovaniEntitet {
-    private Simptom[] simptomi;
+    private Set<Simptom> simptomi;
 
     /**
      * Služi za instanciranje objekta klase <code>class Bolest</code>
@@ -17,7 +19,7 @@ public class Bolest extends ImenovaniEntitet {
      * @param simptomi
      */
 
-    public Bolest(String naziv, Simptom[] simptomi) {
+    public Bolest(String naziv, Set<Simptom> simptomi) {
         super(naziv);
         this.simptomi = simptomi;
     }
@@ -28,7 +30,7 @@ public class Bolest extends ImenovaniEntitet {
      * @return simptomi
      */
 
-    public Simptom[] getSimptomi() {
+    public Set<Simptom> getSimptomi() {
         return simptomi;
     }
 
@@ -38,7 +40,7 @@ public class Bolest extends ImenovaniEntitet {
      * @param simptomi
      */
 
-    public void setSimptomi(Simptom[] simptomi) {
+    public void setSimptomi(Set<Simptom> simptomi) {
         this.simptomi = simptomi;
     }
 }

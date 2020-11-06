@@ -1,5 +1,7 @@
 package main.java.hr.java.covidportal.model;
 
+import java.util.Set;
+
 /**
  * Služi za definiranje instanci klase Virus
  *
@@ -16,7 +18,7 @@ public class Virus extends Bolest implements Zarazno {
      * @param simptomi
      */
 
-    public Virus(String naziv, Simptom[] simptomi) {
+    public Virus(String naziv, Set<Simptom> simptomi) {
         super(naziv, simptomi);
     }
 

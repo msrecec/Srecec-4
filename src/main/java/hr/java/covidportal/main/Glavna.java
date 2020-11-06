@@ -33,10 +33,10 @@ public class Glavna {
 
     public static void main(String[] args) {
         Scanner input = new Scanner(System.in);
-        Zupanija[] zupanije = new Zupanija[BROJ_ZUPANIJA];
-        Simptom[] simptomi = new Simptom[BROJ_SIMPTOMA];
-        Bolest[] bolesti = new Bolest[BROJ_BOLESTI + BROJ_VIRUSA];
-        Osoba[] osobe = new Osoba[BROJ_OSOBA];
+        Set<Zupanija> zupanije = new HashSet<>();
+        Set<Simptom> simptomi = new HashSet<>();
+        Set<Bolest> bolesti = new HashSet<>();
+        List<Osoba> osobe = new ArrayList<>();
 
 
         // Unos Zupanija
@@ -74,15 +74,15 @@ public class Glavna {
      * @param zupanije referenca na polje županija
      */
 
-    private static void unosZupanija(Scanner input, Zupanija[] zupanije) {
+    private static void unosZupanija(Scanner input, Set<Zupanija> zupanije) {
         String nazivZupanije;
         int brojStanovnika;
         boolean ispravanUnos = true;
 
         // Unos županija
 
-        System.out.printf("Unesite podatke o %d zupanije:%n", zupanije.length);
-        for (int i = 0; i < zupanije.length; ++i) {
+        System.out.printf("Unesite podatke o %d zupanije:%n", BROJ_ZUPANIJA);
+        for (int i = 0; i < BROJ_ZUPANIJA; ++i) {
 
             // Unos naziva županija
 
@@ -116,7 +116,7 @@ public class Glavna {
 
                         ispravanUnos = true;
 
-                        zupanije[i] = new Zupanija(nazivZupanije, brojStanovnika);
+                        zupanije.add(new Zupanija(nazivZupanije, brojStanovnika));
 
                     }
 
@@ -148,15 +148,15 @@ public class Glavna {
      * @param simptomi referenca na polje simptoma
      */
 
-    private static void unosSimptoma(Scanner input, Simptom[] simptomi) {
+    private static void unosSimptoma(Scanner input, Set<Simptom> simptomi) {
         String nazivSimptoma;
         String vrijednostSimptoma;
 
         // Unos simptoma
 
-        System.out.printf("Unesite podatke o %d simptoma:%n", simptomi.length);
+        System.out.printf("Unesite podatke o %d simptoma:%n", BROJ_SIMPTOMA);
 
-        for (int i = 0; i < simptomi.length; ++i) {
+        for (int i = 0; i < BROJ_SIMPTOMA; ++i) {
 
             // Unos naziva simptoma
 
@@ -183,7 +183,7 @@ public class Glavna {
 
             } while (!Arrays.asList(Simptom.RIJETKO, Simptom.SREDNJE, Simptom.CESTO).contains(vrijednostSimptoma));
 
-            simptomi[i] = new Simptom(nazivSimptoma, vrijednostSimptoma);
+            simptomi.add(new Simptom(nazivSimptoma, vrijednostSimptoma));
 
         }
     }
@@ -217,21 +217,24 @@ public class Glavna {
      * @param bolesti  referenca na polje bolesti
      */
 
-    private static void unosBolesti(Scanner input, Simptom[] simptomi, Bolest[] bolesti) {
+    private static void unosBolesti(Scanner input, Set<Simptom> simptomi, Set<Bolest> bolesti) {
         String nazivBolestiIliVirusa;
-        int brojOdabranihSimptoma = 0, odabraniSimptom = 0;
-        int[] odabraniSimptomi = null;
-        Simptom[] kopiraniSimptomi;
+        int brojOdabranihSimptoma = 0, odabraniSimptom;
+        Set<Simptom> odabraniSimptomi;
         int bolestIliVirus = 0;
-        boolean ispravanUnos = true;
+        boolean ispravanUnos;
 
-        System.out.printf("Unesite podatke o %d bolesti ili virusa:%n", bolesti.length);
+        System.out.printf("Unesite podatke o %d bolesti ili virusa:%n", BROJ_BOLESTI);
 
-        for (int i = 0; i < bolesti.length; ++i) {
+        for (int i = 0; i < BROJ_BOLESTI; ++i) {
 
             // Odabir unosa bolesti ili virusa i validacija unosa
 
             do {
+
+                // Ponovna inicijalizacija seta odabranih simptoma
+
+                odabraniSimptomi = new HashSet<>();
 
                 try {
 
@@ -288,7 +291,7 @@ public class Glavna {
 
                         input.nextLine();
 
-                        if (brojOdabranihSimptoma > simptomi.length || brojOdabranihSimptoma < 1) {
+                        if (brojOdabranihSimptoma > BROJ_SIMPTOMA || brojOdabranihSimptoma < 1) {
 
                             System.out.println("Pogresan unos broja simptoma ! Unesen je broj izvan raspona ukupnog broja mogućih simptoma.");
 
@@ -302,7 +305,6 @@ public class Glavna {
 
                             ispravanUnos = true;
 
-                            odabraniSimptomi = new int[brojOdabranihSimptoma];
                         }
 
                     } catch (InputMismatchException ex) {
@@ -330,18 +332,23 @@ public class Glavna {
 
                         // Ispis Postojecih Simptoma
 
-                        for (int k = 0; k < simptomi.length; ++k) {
-                            System.out.printf("%d. %s %s%n", k + 1, simptomi[k].getNaziv(), simptomi[k].getVrijednost());
+                        Iterator<Simptom> iteratorSimptoma = simptomi.iterator();
+                        Simptom simptom;
+
+                        for (int k = 0; k < BROJ_SIMPTOMA && iteratorSimptoma.hasNext(); ++k) {
+                            simptom = iteratorSimptoma.next();
+                            System.out.printf("%d. %s %s%n", k + 1, simptom.getNaziv(), simptom.getVrijednost());
                         }
 
                         try {
+
                             System.out.print("Odabir: ");
 
                             odabraniSimptom = input.nextInt();
 
                             input.nextLine();
 
-                            if (odabraniSimptom > simptomi.length || odabraniSimptom < 1) {
+                            if (odabraniSimptom > BROJ_SIMPTOMA || odabraniSimptom < 1) {
 
                                 System.out.println("Neispravan unos, molimo pokusajte ponovno!");
 
@@ -353,27 +360,33 @@ public class Glavna {
 
                                 ispravanUnos = true;
 
-                                // Provjera postojanosti Odabranog Postojeceg Simptoma u prethodno Odabranim Simptomima
+                                iteratorSimptoma = simptomi.iterator();
+                                Simptom pronadeniOdabraniSimptom = null;
 
-                                for (int k = 0; k < odabraniSimptomi.length; ++k) {
-
-                                    if (odabraniSimptomi[k] == odabraniSimptom) {
-
-                                        System.out.println("Odabrani Simptom je vec unesen! Molimo odaberite ponovno.");
-
-                                        logger.error("Odabran je Simptom koji je već unesen: " + Integer.toString(odabraniSimptom));
-
-                                        ispravanUnos = false;
-
-                                        break;
+                                for (int k = 0; k < BROJ_SIMPTOMA && iteratorSimptoma.hasNext(); ++k) {
+                                    simptom = iteratorSimptoma.next();
+                                    if (k == (odabraniSimptom - 1)) {
+                                        pronadeniOdabraniSimptom = simptom;
                                     }
+                                }
+
+                                // Provjera postojanosti Pronađenog Odabranog Simptoma u prethodno Odabranim Simptomima
+
+
+                                if (odabraniSimptomi.size() > 0 && odabraniSimptomi.contains(pronadeniOdabraniSimptom)) {
+
+                                    System.out.println("Odabrani Simptom je vec unesen! Molimo odaberite ponovno.");
+
+                                    logger.error("Odabran je Simptom koji je već unesen: " + Integer.toString(odabraniSimptom));
+
+                                    ispravanUnos = false;
                                 }
 
                                 if (ispravanUnos) {
 
                                     logger.info("Odabran je (broj) simptom is postojećih simptoma: " + Integer.toString(odabraniSimptom));
 
-                                    odabraniSimptomi[j] = odabraniSimptom;
+                                    odabraniSimptomi.add(pronadeniOdabraniSimptom);
                                 }
                             }
                         } catch (InputMismatchException ex) {
@@ -387,25 +400,16 @@ public class Glavna {
                             ispravanUnos = false;
 
                         }
-
                     } while (!ispravanUnos);
-                }
-
-                // Kopiranje Postojecih Simptoma u novo polje Kopiranih Simptoma
-
-                kopiraniSimptomi = new Simptom[brojOdabranihSimptoma];
-
-                for (int j = 0; j < brojOdabranihSimptoma; ++j) {
-                    kopiraniSimptomi[j] = new Simptom(simptomi[odabraniSimptomi[j] - 1].getNaziv(), simptomi[odabraniSimptomi[j] - 1].getVrijednost());
                 }
 
                 // Provjera duplikata unosa Simptoma
 
-                if (i > 0) {
+                if (bolesti.size() > 0) {
 
                     try {
 
-                        provjeraBolestiIstihSimptoma(bolesti, kopiraniSimptomi, i);
+                        provjeraBolestiIstihSimptoma(bolesti, odabraniSimptomi);
 
                         ispravanUnos = true;
 
@@ -423,7 +427,7 @@ public class Glavna {
 
             // Provjera da li je unos bolest ili virus i unos u polje bolesti
 
-            bolesti[i] = bolestIliVirus == 1 ? new Bolest(nazivBolestiIliVirusa, kopiraniSimptomi) : new Virus(nazivBolestiIliVirusa, kopiraniSimptomi);
+            bolesti.add(bolestIliVirus == 1 ? new Bolest(nazivBolestiIliVirusa, odabraniSimptomi) : new Virus(nazivBolestiIliVirusa, odabraniSimptomi));
         }
     }
 
@@ -434,50 +438,26 @@ public class Glavna {
      * Ako su trenutno uneseni simptomi <code>Simptom[] kopiraniSimptomi</code> prisutni u simptomima polja prethodno unesenih bolesti <code>Bolest[] bolesti</code>
      * baca grešku <code>throw new BolestIstihSimptoma("Uneseni simptomi su duplikati iz prethodno unesenih bolesti!");</code>
      *
-     * @param bolesti                     referenca na polje bolesti koje su trenutno unesene
-     * @param kopiraniSimptomi            referenca na polje simptoma za bolest koja se trenutno unosi
-     * @param brojTrenutnoUnesenihBolesti broj trenutno unesenih bolesti
+     * @param bolesti          referenca na polje bolesti koje su trenutno unesene
+     * @param odabraniSimptomi referenca na polje simptoma za bolest koja se trenutno unosi
      * @throws BolestIstihSimptoma iznimka koja se baca u slučaju kad su trenutno uneseni simptomi <code>Simptom[] kopiraniSimptomi</code>
      *                             prisutni u prethodno unesenim bolestima <code>Bolest[] bolesti</code>
      */
 
-    private static void provjeraBolestiIstihSimptoma(Bolest[] bolesti, Simptom[] kopiraniSimptomi, int brojTrenutnoUnesenihBolesti) throws BolestIstihSimptoma {
-        boolean flag = true;
+    private static void provjeraBolestiIstihSimptoma(Set<Bolest> bolesti, Set<Simptom> odabraniSimptomi) throws BolestIstihSimptoma {
 
-        Arrays.sort(kopiraniSimptomi, new Comparator<Simptom>() {
-            public int compare(Simptom s1, Simptom s2) {
-                return s1.getNaziv().compareToIgnoreCase(s2.getNaziv());
+        for (Bolest bolest : bolesti) {
+
+            if (bolest.getSimptomi().containsAll(odabraniSimptomi)) {
+
+                System.out.println("Unesena bolest ne smije imati simptome jednake prethodno unesenim bolestima!");
+
+                System.out.println("Molimo Vas da ponovno unesete bolest.");
+
+                throw new BolestIstihSimptoma("Uneseni simptomi su duplikati iz prethodno unesenih bolesti!");
+
             }
-        });
 
-        for (int i = 0; i < brojTrenutnoUnesenihBolesti; ++i) {
-
-            Arrays.sort(bolesti[i].getSimptomi(), new Comparator<Simptom>() {
-                public int compare(Simptom s1, Simptom s2) {
-                    return s1.getNaziv().compareToIgnoreCase(s2.getNaziv());
-                }
-            });
-
-            if (bolesti[i].getSimptomi().length == kopiraniSimptomi.length) {
-
-                flag = true;
-
-                for (int j = 0; j < kopiraniSimptomi.length; ++j) {
-                    if (!bolesti[i].getSimptomi()[j].equals(kopiraniSimptomi[j])) {
-                        flag = false;
-                    }
-                }
-
-                if (flag) {
-
-                    System.out.println("Unesena bolest ne smije imati simptome jednake prethodno unesenim bolestima!");
-
-                    System.out.println("Molimo Vas da ponovno unesete bolest.");
-
-                    throw new BolestIstihSimptoma("Uneseni simptomi su duplikati iz prethodno unesenih bolesti!");
-
-                }
-            }
         }
     }
 
@@ -536,7 +516,7 @@ public class Glavna {
      * @param osobe    referenca na polje unesenih osoba
      */
 
-    private static void unosOsoba(Scanner input, Zupanija[] zupanije, Bolest[] bolesti, Osoba[] osobe) {
+    private static void unosOsoba(Scanner input, Set<Zupanija> zupanije, Set<Bolest> bolesti, List<Osoba> osobe) {
         boolean ispravanUnos = true;
         int odabranaZupanija = 0;
         int odabranaBolest = 0;
@@ -545,11 +525,11 @@ public class Glavna {
         int brojKontaktiranihOsoba = 0;
         String ime, prezime;
         Integer starost = 0;
-        Zupanija zupanija;
-        Bolest zarazenBolescu;
+        Zupanija zupanija = null;
+        Bolest zarazenBolescu, odabranaUnesenaBolest = null;
         Osoba[] kontaktiraneOsobe = null;
 
-        for (int i = 0; i < osobe.length; ++i) {
+        for (int i = 0; i < BROJ_OSOBA; ++i) {
 
             // Unos imena
 
@@ -610,8 +590,10 @@ public class Glavna {
 
                     System.out.printf("Unesite županiju prebivališta osobe:%n");
 
-                    for (int j = 0; j < zupanije.length; ++j) {
-                        System.out.printf("%d. %s%n", j + 1, zupanije[j].getNaziv());
+                    Iterator<Zupanija> iteratorZupanija = zupanije.iterator();
+
+                    for (int j = 0; j < zupanije.size(); ++j) {
+                        System.out.printf("%d. %s%n", j + 1, iteratorZupanija.next().getNaziv());
                     }
 
                     System.out.print("Odabir: ");
@@ -622,7 +604,7 @@ public class Glavna {
 
                     // Provjera ispravnosti unosa Odabrane Zupanije
 
-                    if (odabranaZupanija < 1 || odabranaZupanija > zupanije.length) {
+                    if (odabranaZupanija < 1 || odabranaZupanija > zupanije.size()) {
 
                         System.out.println("Pogresan unos županije!");
 
@@ -653,8 +635,14 @@ public class Glavna {
 
             } while (!ispravanUnos);
 
+            Iterator<Zupanija> iteratorZupanija = zupanije.iterator();
 
-            zupanija = zupanije[odabranaZupanija - 1];
+            for (int j = 0; j < zupanije.size() && iteratorZupanija.hasNext(); ++j) {
+                zupanija = iteratorZupanija.next();
+                if (j == (odabranaZupanija - 1)) {
+                    break;
+                }
+            }
 
             // Unos bolesti osobe
 
@@ -664,8 +652,10 @@ public class Glavna {
 
                     System.out.println("Unesite bolest ili virus osobe:");
 
-                    for (int j = 0; j < bolesti.length; ++j) {
-                        System.out.printf("%d. %s%n", j + 1, bolesti[j].getNaziv());
+                    Iterator<Bolest> iteratorBolesti = bolesti.iterator();
+
+                    for (int j = 0; j < bolesti.size() && iteratorBolesti.hasNext(); ++j) {
+                        System.out.printf("%d. %s%n", j + 1, iteratorBolesti.next().getNaziv());
                     }
 
                     System.out.print("Odabir: ");
@@ -676,7 +666,7 @@ public class Glavna {
 
                     // Provjera ispravnosti unosa Odabrane Bolesti Osobe
 
-                    if (odabranaBolest < 1 || odabranaBolest > bolesti.length) {
+                    if (odabranaBolest < 1 || odabranaBolest > bolesti.size()) {
 
                         System.out.println("Pogrešan unos bolesti/virusa!");
 
@@ -687,8 +677,16 @@ public class Glavna {
 
                     } else {
 
-                        logger.info(((bolesti[odabranaBolest - 1] instanceof Virus) ? "Unesen je virus: " : "Unesena je bolest: ")
-                                + Integer.toString(odabranaBolest));
+                        iteratorBolesti = bolesti.iterator();
+
+                        for (int l = 0; l < bolesti.size() && iteratorBolesti.hasNext(); ++l) {
+                            if (l == (odabranaBolest - 1)) {
+                                logger.info(((iteratorBolesti.next() instanceof Virus) ? "Unesen je virus: " : "Unesena je bolest: ")
+                                        + Integer.toString(odabranaBolest));
+                            } else {
+                                iteratorBolesti.next();
+                            }
+                        }
 
                         ispravanUnos = true;
 
@@ -708,15 +706,20 @@ public class Glavna {
 
             } while (!ispravanUnos);
 
+            Iterator<Bolest> iteratorBolesti = bolesti.iterator();
 
-            zarazenBolescu = bolesti[odabranaBolest - 1] instanceof Virus ?
-                    new Virus(bolesti[odabranaBolest - 1].getNaziv(), bolesti[odabranaBolest - 1].getSimptomi()) :
-                    new Bolest(bolesti[odabranaBolest - 1].getNaziv(), bolesti[odabranaBolest - 1].getSimptomi());
+            for (int j = 0; j < bolesti.size() && iteratorBolesti.hasNext(); ++j) {
+                odabranaUnesenaBolest = iteratorBolesti.next();
+                if (j == (odabranaBolest - 1)) {
+                    zarazenBolescu = odabranaUnesenaBolest;
+                    break;
+                }
+            }
 
 
             // Provjera osoba s kojim je osoba usla u kontakt u slucaju da nije prva osoba - prva se ne gleda
 
-            if (i > 0) {
+            if (osobe.size() > 0) {
 
                 // Unos broja kontaktiranih osoba i validacija
 

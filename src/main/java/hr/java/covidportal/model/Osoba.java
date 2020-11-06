@@ -1,6 +1,8 @@
 package main.java.hr.java.covidportal.model;
 
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 import java.util.Objects;
 
 /**
@@ -26,7 +28,7 @@ public class Osoba {
         private Integer starost;
         private Zupanija zupanija;
         private Bolest zarazenBolescu;
-        private Osoba[] kontaktiraneOsobe;
+        private List<Osoba> kontaktiraneOsobe;
 
         /**
          * Služi za instanciranje objekta klase <code>class Builder</code>
@@ -97,7 +99,7 @@ public class Osoba {
          * @return instanca
          */
 
-        public Builder kontaktiraneOsobe(Osoba[] kontaktiraneOsobe) {
+        public Builder kontaktiraneOsobe(List<Osoba> kontaktiraneOsobe) {
             this.kontaktiraneOsobe = kontaktiraneOsobe;
             return this;
         }
@@ -139,7 +141,7 @@ public class Osoba {
     private Integer starost;
     private Zupanija zupanija;
     private Bolest zarazenBolescu;
-    private Osoba[] kontaktiraneOsobe;
+    private List<Osoba> kontaktiraneOsobe;
 
     // Constructor is now private
 
@@ -286,7 +288,7 @@ public class Osoba {
      * @return kontaktiraneOsobe
      */
 
-    public Osoba[] getKontaktiraneOsobe() {
+    public List<Osoba> getKontaktiraneOsobe() {
         return kontaktiraneOsobe;
     }
 
@@ -296,7 +298,7 @@ public class Osoba {
      * @param kontaktiraneOsobe
      */
 
-    public void setKontaktiraneOsobe(Osoba[] kontaktiraneOsobe) {
+    public void setKontaktiraneOsobe(List<Osoba> kontaktiraneOsobe) {
         this.kontaktiraneOsobe = kontaktiraneOsobe;
     }
 }
