@@ -40,9 +40,6 @@ public class Glavna {
         List<Osoba> osobe = new ArrayList<>();
         Map<Bolest, List<Osoba>> OsobeZarazeneVirusima = new HashMap<>();
 
-        System.out.println(((new BigDecimal(10000).divide(new BigDecimal(200000)))).toString());
-        System.out.println((((new BigDecimal(10000).divide(new BigDecimal(200000))))).multiply(new BigDecimal(100)).toString());
-
         // Unos Zupanija
 
         unosZupanija(input, zupanije);
