@@ -226,15 +226,11 @@ public class Glavna {
 
         System.out.printf("Unesite podatke o %d bolesti ili virusa:%n", BROJ_BOLESTI);
 
-        for (int i = 0; i < BROJ_BOLESTI; ++i) {
+        for (int i = 0; i < BROJ_BOLESTI + BROJ_VIRUSA; ++i) {
 
             // Odabir unosa bolesti ili virusa i validacija unosa
 
             do {
-
-                // Ponovna inicijalizacija seta odabranih simptoma
-
-                odabraniSimptomi = new HashSet<>();
 
                 try {
 
@@ -275,6 +271,12 @@ public class Glavna {
             } while (!ispravanUnos);
 
             do {
+
+                // Ponovna inicijalizacija seta odabranih simptoma
+
+                odabraniSimptomi = new HashSet<>();
+
+                // Unos Bolesti ili Virusa
 
                 System.out.printf("Unesite naziv bolesti ili virusa: ");
 
@@ -372,7 +374,6 @@ public class Glavna {
 
                                 // Provjera postojanosti Pronađenog Odabranog Simptoma u prethodno Odabranim Simptomima
 
-
                                 if (odabraniSimptomi.size() > 0 && odabraniSimptomi.contains(pronadeniOdabraniSimptom)) {
 
                                     System.out.println("Odabrani Simptom je vec unesen! Molimo odaberite ponovno.");
@@ -467,7 +468,7 @@ public class Glavna {
      * @param osobe osobe koje su unesene u program
      */
 
-    private static void ispisOsoba(Osoba[] osobe) {
+    private static void ispisOsoba(List<Osoba> osobe) {
         System.out.println("Popis osoba:");
 
         for (Osoba osoba : osobe) {
@@ -499,7 +500,7 @@ public class Glavna {
      * i upisuje gresku u log <code>logger.error("Prilikom unosa brojčane vrijednosti kod biranja bolesti/virusa osobe je doslo do pogreske. Unesen je String koji se ne može parsirati!", ex);</code>
      * <p>
      * Ako je broj trenutno unesenih osoba veći ili jednak 1 <code>if(i > 0)</code> unosi broj kontaktiranih osoba <code>int brojKontaktiranihOsoba</code> i sprema ih u polje
-     * <code>int[] odabraneKontaktiraneOsobe</code>
+     * <code>int[] odabraneUneseneKontaktiraneOsobe</code>
      * <p>
      * Unosi odabir kontaktiranih osoba i upisuje trenutno kontaktiranu osobu u <code>int odabranaKontaktiranaOsoba</code> i ako je unesena vrijednost izvan raspona dostupnih prethodno unesenih
      * osoba <code>if (brojKontaktiranihOsoba > i || brojKontaktiranihOsoba < 0)</code> u log upisuje gresku
@@ -507,7 +508,7 @@ public class Glavna {
      * <p>
      * Ako uneseni broj kontaktirane osobe <code>int odabranaKontaktiranaOsoba</code> nije cijeli broj <code>int</code> obrađuje iznimku <code>InputMismatchException ex</code>
      * i upisuje gresku u log <code>logger.error("Prilikom unosa brojčane vrijednosti kod unosa odabrane kontaktirane osobe je doslo do pogreske. Unesen je String koji se ne može parsirati!", ex);</code>
-     * Provjerava unos duplikata <code>provjeraDuplikataKontaktiranihOsoba(odabranaKontaktiranaOsoba, odabraneKontaktiraneOsobe);</code> i obrađuje iznimku <code>DuplikatKontaktiraneOsobe ex</code>
+     * Provjerava unos duplikata <code>provjeraDuplikataKontaktiranihOsoba(odabranaKontaktiranaOsoba, odabraneUneseneKontaktiraneOsobe);</code> i obrađuje iznimku <code>DuplikatKontaktiraneOsobe ex</code>
      * i upisuje gresku u log <code> logger.error(ex.getMessage(), ex);</code>
      *
      * @param input    korisnički unos
@@ -521,13 +522,14 @@ public class Glavna {
         int odabranaZupanija = 0;
         int odabranaBolest = 0;
         int odabranaKontaktiranaOsoba = 0;
-        int[] odabraneKontaktiraneOsobe;
+        List<Osoba> odabraneUneseneKontaktiraneOsobe = new ArrayList<>();
+        Osoba odabranaUnesenaKontaktiranaOsoba = null;
         int brojKontaktiranihOsoba = 0;
         String ime, prezime;
         Integer starost = 0;
         Zupanija zupanija = null;
-        Bolest zarazenBolescu, odabranaUnesenaBolest = null;
-        Osoba[] kontaktiraneOsobe = null;
+        Bolest zarazenBolescu = null, odabranaUnesenaBolest = null;
+        List<Osoba> kontaktiraneOsobe = new ArrayList<>();
 
         for (int i = 0; i < BROJ_OSOBA; ++i) {
 
@@ -770,7 +772,7 @@ public class Glavna {
 
                     // Unos i validacija Odabranih Kontaktiranih Osoba
 
-                    odabraneKontaktiraneOsobe = new int[brojKontaktiranihOsoba];
+                    odabraneUneseneKontaktiraneOsobe = new ArrayList<>();
 
                     for (int j = 0; j < brojKontaktiranihOsoba; ++j) {
 
@@ -782,8 +784,12 @@ public class Glavna {
 
                                 System.out.printf("Odaberite %d. osobu: %n", j + 1);
 
-                                for (int k = 0; k < i; ++k) {
-                                    System.out.printf("%d. %s %s%n", k + 1, osobe[k].getIme(), osobe[k].getPrezime());
+                                Iterator<Osoba> iteratorOsoba = osobe.iterator();
+                                Osoba osoba;
+
+                                for (int k = 0; k < i && iteratorOsoba.hasNext(); ++k) {
+                                    osoba = iteratorOsoba.next();
+                                    System.out.printf("%d. %s %s%n", k + 1, osoba.getIme(), osoba.getPrezime());
                                 }
 
                                 System.out.print("Odabir: ");
@@ -807,13 +813,15 @@ public class Glavna {
 
                                     // Provjera Duplikata Kontaktiranih Osoba i obrada greške
 
-                                    provjeraDuplikataKontaktiranihOsoba(odabranaKontaktiranaOsoba, odabraneKontaktiraneOsobe);
+                                    odabranaUnesenaKontaktiranaOsoba = osobe.get(odabranaKontaktiranaOsoba-1);
+
+                                    provjeraDuplikataKontaktiranihOsoba(odabranaUnesenaKontaktiranaOsoba, odabraneUneseneKontaktiraneOsobe);
 
                                     ispravanUnos = true;
 
                                     logger.info("Unesen je odabir kontaktirane osobe: " + Integer.toString(odabranaKontaktiranaOsoba));
 
-                                    odabraneKontaktiraneOsobe[j] = odabranaKontaktiranaOsoba;
+                                    odabraneUneseneKontaktiraneOsobe.add(odabranaUnesenaKontaktiranaOsoba);
 
 
                                 }
@@ -842,51 +850,44 @@ public class Glavna {
 
                     // Spremanje Odabranih Kontaktiranih Osoba u polje Kontaktiranih Osoba
 
-                    kontaktiraneOsobe = new Osoba[odabraneKontaktiraneOsobe.length];
+                    kontaktiraneOsobe = odabraneUneseneKontaktiraneOsobe;
 
-                    for (int j = 0; j < odabraneKontaktiraneOsobe.length; ++j) {
-                        kontaktiraneOsobe[j] = osobe[odabraneKontaktiraneOsobe[j] - 1];
-                    }
                 }
             }
 
             // Spremanje osoba u polje osoba
 
             if (i == 0) {
-                osobe[i] = new Osoba.Builder(ime).prezime(prezime).starost(starost).zupanija(zupanija)
-                        .zarazenBolescu(zarazenBolescu).build();
+                osobe.add(new Osoba.Builder(ime).prezime(prezime).starost(starost).zupanija(zupanija)
+                        .zarazenBolescu(zarazenBolescu).build());
             } else {
-                osobe[i] = new Osoba.Builder(ime).prezime(prezime).starost(starost).zupanija(zupanija)
-                        .zarazenBolescu(zarazenBolescu).kontaktiraneOsobe(kontaktiraneOsobe).build();
+                osobe.add(new Osoba.Builder(ime).prezime(prezime).starost(starost).zupanija(zupanija)
+                        .zarazenBolescu(zarazenBolescu).kontaktiraneOsobe(kontaktiraneOsobe).build());
             }
         }
     }
 
     /**
      * Provjerava postojanost odabrane kontaktirane osobe <code>int odabranaKontaktiranaOsoba</code> u polju
-     * <code>int[] odabraneKontaktiraneOsobe</code> i provjerava duplikate
+     * <code>int[] odabraneUneseneKontaktiraneOsobe</code> i provjerava duplikate
      * ako postoji duplikat baca iznimku <code>throw new DuplikatKontaktiraneOsobe("Prilikom unosa odabira kontaktirane osobe, unesena je prethodno odabrana osoba (duplikat): "
      * + Integer.toString(odabranaKontaktiranaOsoba));</code>
      *
-     * @param odabranaKontaktiranaOsoba unesena odabrana kontaktirana osoba
-     * @param odabraneKontaktiraneOsobe polje prethodno odabranih kontaktiranih osoba
+     * @param odabranaUnesenaKontaktiranaOsoba unesena odabrana kontaktirana osoba
+     * @param odabraneUneseneKontaktiraneOsobe polje prethodno odabranih kontaktiranih osoba
      * @throws DuplikatKontaktiraneOsobe iznimka koja se baca u slučaju kada su uneseni duplikati
      */
 
-    private static void provjeraDuplikataKontaktiranihOsoba(int odabranaKontaktiranaOsoba, int[] odabraneKontaktiraneOsobe) throws DuplikatKontaktiraneOsobe {
+    private static void provjeraDuplikataKontaktiranihOsoba(Osoba odabranaUnesenaKontaktiranaOsoba, List<Osoba> odabraneUneseneKontaktiraneOsobe) throws DuplikatKontaktiraneOsobe {
 
         // (Provjera duplikata) Provjera postojanosti Odabrane Kontaktirane Osobe u prethodno Odabranim Kontaktiranim Osobama
 
-        for (int k = 0; k < odabraneKontaktiraneOsobe.length; ++k) {
+        if (odabraneUneseneKontaktiraneOsobe.contains(odabranaUnesenaKontaktiranaOsoba)) {
 
-            if (odabraneKontaktiraneOsobe[k] == odabranaKontaktiranaOsoba) {
+            System.out.println("Osoba je već odabrana, molimo ponovno unesite!");
 
-                System.out.println("Osoba je već odabrana, molimo ponovno unesite!");
+            throw new DuplikatKontaktiraneOsobe("Prilikom unosa odabira kontaktirane osobe, unesena je prethodno odabrana osoba (duplikat)");
 
-                throw new DuplikatKontaktiraneOsobe("Prilikom unosa odabira kontaktirane osobe, unesena je prethodno odabrana osoba (duplikat): "
-                        + Integer.toString(odabranaKontaktiranaOsoba));
-
-            }
         }
     }
 }
