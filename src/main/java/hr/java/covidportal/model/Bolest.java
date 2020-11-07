@@ -1,5 +1,6 @@
 package main.java.hr.java.covidportal.model;
 
+import java.util.Objects;
 import java.util.Set;
 
 /**
@@ -22,6 +23,32 @@ public class Bolest extends ImenovaniEntitet {
     public Bolest(String naziv, Set<Simptom> simptomi) {
         super(naziv);
         this.simptomi = simptomi;
+    }
+
+    /**
+     * Uspoređuje elemente
+     *
+     * @param o objekt usporedbe
+     * @return true ako su elementi jednaki
+     */
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof Bolest)) return false;
+        Bolest bolest = (Bolest) o;
+        return Objects.equals(getSimptomi(), bolest.getSimptomi());
+    }
+
+    /**
+     * Radi hashcode
+     *
+     * @return cijeli broj hashcode
+     */
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(getSimptomi());
     }
 
     /**

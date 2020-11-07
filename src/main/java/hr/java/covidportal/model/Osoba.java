@@ -183,6 +183,37 @@ public class Osoba {
     }
 
     /**
+     * Uspoređuje elemente
+     *
+     * @param o objekt usporedbe
+     * @return true ako su elementi jednaki
+     */
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof Osoba)) return false;
+        Osoba osoba = (Osoba) o;
+        return Objects.equals(getIme(), osoba.getIme()) &&
+                Objects.equals(getPrezime(), osoba.getPrezime()) &&
+                Objects.equals(getStarost(), osoba.getStarost()) &&
+                Objects.equals(getZupanija(), osoba.getZupanija()) &&
+                Objects.equals(getZarazenBolescu(), osoba.getZarazenBolescu()) &&
+                Objects.equals(getKontaktiraneOsobe(), osoba.getKontaktiraneOsobe());
+    }
+
+    /**
+     * Radi HashCode
+     *
+     * @return integer hashcode
+     */
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(getIme(), getPrezime(), getStarost(), getZupanija(), getZarazenBolescu(), getKontaktiraneOsobe());
+    }
+
+    /**
      * Vraća ime osobe
      *
      * @return ime

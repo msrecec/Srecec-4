@@ -1,5 +1,7 @@
 package main.java.hr.java.covidportal.model;
 
+import main.java.hr.java.covidportal.enumeracija.VrijednostSimptoma;
+
 import java.util.Objects;
 
 /**
@@ -10,8 +12,7 @@ import java.util.Objects;
  */
 
 public class Simptom extends ImenovaniEntitet {
-    public static final String RIJETKO = "RIJETKO", SREDNJE = "SREDNJE", CESTO = "ČESTO";
-    private String vrijednost;
+    private VrijednostSimptoma vrijednost;
 
     /**
      * Služi za instanciranje objekta klase <code>class Simptom</code>
@@ -20,7 +21,7 @@ public class Simptom extends ImenovaniEntitet {
      * @param vrijednost
      */
 
-    public Simptom(String naziv, String vrijednost) {
+    public Simptom(String naziv, VrijednostSimptoma vrijednost) {
         super(naziv);
         this.vrijednost = vrijednost;
     }
@@ -59,7 +60,7 @@ public class Simptom extends ImenovaniEntitet {
      * @return vrijednost
      */
 
-    public String getVrijednost() {
+    public VrijednostSimptoma getVrijednost() {
         return vrijednost;
     }
 
@@ -69,7 +70,7 @@ public class Simptom extends ImenovaniEntitet {
      * @param vrijednost
      */
 
-    public void setVrijednost(String vrijednost) {
+    public void setVrijednost(VrijednostSimptoma vrijednost) {
         this.vrijednost = vrijednost;
     }
 }

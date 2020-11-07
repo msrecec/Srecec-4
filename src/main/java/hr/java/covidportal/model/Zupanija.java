@@ -1,5 +1,7 @@
 package main.java.hr.java.covidportal.model;
 
+import java.util.Objects;
+
 /**
  * Služi za definiranje instanci klase Zupanija
  *
@@ -20,6 +22,32 @@ public class Zupanija extends ImenovaniEntitet {
     public Zupanija(String naziv, Integer brojStanovnika) {
         super(naziv);
         this.brojStanovnika = brojStanovnika;
+    }
+
+    /**
+     * Uspoređuje elemente
+     *
+     * @param o objekt usporedbe
+     * @return true ako su elementi jednaki
+     */
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof Zupanija)) return false;
+        Zupanija zupanija = (Zupanija) o;
+        return Objects.equals(getBrojStanovnika(), zupanija.getBrojStanovnika());
+    }
+
+    /**
+     * Radi hashcode
+     *
+     * @return integer vrijednost HashCode
+     */
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(getBrojStanovnika());
     }
 
     /**
