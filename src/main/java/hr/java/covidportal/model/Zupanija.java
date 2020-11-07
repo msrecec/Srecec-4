@@ -10,7 +10,7 @@ import java.util.Objects;
  */
 
 public class Zupanija extends ImenovaniEntitet {
-    private Integer brojStanovnika;
+    private Integer brojStanovnika, brojZarazenih;
 
     /**
      * Služi za instanciranje objekta instanci klase Zupanija
@@ -19,9 +19,10 @@ public class Zupanija extends ImenovaniEntitet {
      * @param brojStanovnika
      */
 
-    public Zupanija(String naziv, Integer brojStanovnika) {
+    public Zupanija(String naziv, Integer brojStanovnika, Integer brojZarazenih) {
         super(naziv);
         this.brojStanovnika = brojStanovnika;
+        this.brojZarazenih = brojZarazenih;
     }
 
     /**
@@ -68,5 +69,25 @@ public class Zupanija extends ImenovaniEntitet {
 
     public void setBrojStanovnika(Integer brojStanovnika) {
         this.brojStanovnika = brojStanovnika;
+    }
+
+    /**
+     * Vraća broj zaraženih
+     *
+     * @return brojZarazenih
+     */
+
+    public Integer getBrojZarazenih() {
+        return brojZarazenih;
+    }
+
+    /**
+     * Postavlja broj zaraženih
+     *
+     * @param brojZarazenih novi brojZarazenih
+     */
+
+    public void setBrojZarazenih(Integer brojZarazenih) {
+        this.brojZarazenih = brojZarazenih;
     }
 }

@@ -4,15 +4,17 @@ import main.java.hr.java.covidportal.enumeracija.VrijednostSimptoma;
 import main.java.hr.java.covidportal.iznimke.BolestIstihSimptoma;
 import main.java.hr.java.covidportal.iznimke.DuplikatKontaktiraneOsobe;
 import main.java.hr.java.covidportal.model.*;
+import main.java.hr.java.covidportal.sort.CovidSorter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.math.BigDecimal;
 import java.util.*;
 
 /**
  * Služi za unos Županija, Simptoma, Bolesti, Osoba i služi za ispis Osoba
  *
- * @author Mislav Srecec
+ * @author Mislav Srečec
  * @version 3.0
  * @see <a href="https://grader.tvz.hr/">Odrediste svih verzija</a>
  */
@@ -32,11 +34,14 @@ public class Glavna {
 
     public static void main(String[] args) {
         Scanner input = new Scanner(System.in);
-        Set<Zupanija> zupanije = new HashSet<>();
+        SortedSet<Zupanija> zupanije = new TreeSet<>(new CovidSorter());
         Set<Simptom> simptomi = new HashSet<>();
         Set<Bolest> bolesti = new HashSet<>();
         List<Osoba> osobe = new ArrayList<>();
         Map<Bolest, List<Osoba>> OsobeZarazeneVirusima = new HashMap<>();
+
+        System.out.println(((new BigDecimal(10000).divide(new BigDecimal(200000)))).toString());
+        System.out.println((((new BigDecimal(10000).divide(new BigDecimal(200000))))).multiply(new BigDecimal(100)).toString());
 
         // Unos Zupanija
 
@@ -62,7 +67,31 @@ public class Glavna {
 
         ispisOsoba(osobe);
 
+        // Ispis Virusa/Bolesti i osoba koje su njima zaražene
+
         ispisVirusaIOsobaZarazenihVirusima(OsobeZarazeneVirusima);
+
+        // Ispis županije sa najviše zaraženih
+
+        ispisZupanijeSaNajviseZarazenih(zupanije);
+
+    }
+
+    /**
+     * Ispisuje županiju sa najvećim postotkom zaraženih
+     *
+     * @param zupanije sortirane županije
+     */
+
+    private static void ispisZupanijeSaNajviseZarazenih(SortedSet<Zupanija> zupanije) {
+        BigDecimal prviBrojZarazenih = new BigDecimal(zupanije.last().getBrojZarazenih());
+        BigDecimal prviBrojStanovnika = new BigDecimal(zupanije.last().getBrojStanovnika());
+        BigDecimal postotakBrojaZarazenih = (prviBrojZarazenih.divide(prviBrojStanovnika))
+                .multiply(new BigDecimal(100));
+
+        System.out.println("Najviše zaraženih osoba ime u županiji "
+                + zupanije.last().getNaziv() + ": " + postotakBrojaZarazenih + "%.");
+
     }
 
     /**
@@ -79,7 +108,7 @@ public class Glavna {
             if (osobeZarazeneVirusima.get(bolest).size() > 1) {
                 System.out.print(" boluju: ");
                 for (Osoba osoba : osobeZarazeneVirusima.get(bolest)) {
-                    System.out.print(osoba.getIme() + " " + osoba.getPrezime());
+                    System.out.print(osoba.getIme() + " " + osoba.getPrezime() + ", ");
                 }
                 System.out.print("\n");
             } else if (osobeZarazeneVirusima.get(bolest).size() == 1) {
@@ -128,9 +157,9 @@ public class Glavna {
      * @param zupanije referenca na polje županija
      */
 
-    private static void unosZupanija(Scanner input, Set<Zupanija> zupanije) {
+    private static void unosZupanija(Scanner input, SortedSet<Zupanija> zupanije) {
         String nazivZupanije;
-        int brojStanovnika, brojZupanija = 0;
+        int brojStanovnika = 0, brojZupanija = 0, brojZarazenih = 0;
         boolean ispravanUnos = true;
 
         // Unos broja županija i validacija unosa
@@ -175,6 +204,7 @@ public class Glavna {
 
         } while (!ispravanUnos);
 
+
         // Unos županija
 
         System.out.printf("Unesite podatke o %d zupanije:%n", brojZupanija);
@@ -212,8 +242,6 @@ public class Glavna {
 
                         ispravanUnos = true;
 
-                        zupanije.add(new Zupanija(nazivZupanije, brojStanovnika));
-
                     }
 
 
@@ -228,6 +256,51 @@ public class Glavna {
                     ispravanUnos = false;
                 }
             } while (!ispravanUnos);
+
+            // Unos i validacija broja zaraženih osoba
+
+            do {
+
+                try {
+
+                    System.out.printf("Unesite broj zaraženih stanovnika: ");
+
+                    brojZarazenih = input.nextInt();
+
+                    input.nextLine();
+
+                    if (brojZarazenih < 0) {
+
+                        System.out.println("Pogrešan unos! Molimo unesite pozitivan cijeli broj.");
+
+                        logger.error("Prilikom unosa broja zaraženih stanovnika unesen je negativan broj.");
+
+                        ispravanUnos = false;
+
+                    } else {
+
+                        logger.info("Unesen je broj zaraženih stanovnika: " + Integer.toString(brojZupanija));
+
+                        ispravanUnos = true;
+
+                    }
+
+                } catch (InputMismatchException ex) {
+
+                    logger.error("Prilikom unosa broja zaraženih stanovnika je došlo do pogreške. Unesen je String koji se ne može parsirati!", ex);
+
+                    System.out.println("Došlo je do pogreške kod unosa brojčane vrijednosti! Molimo ponovite unos.");
+
+                    input.nextLine();
+
+                    ispravanUnos = false;
+
+                }
+
+            } while (!ispravanUnos);
+
+            zupanije.add(new Zupanija(nazivZupanije, brojStanovnika, brojZarazenih));
+
         }
     }
 
@@ -764,7 +837,7 @@ public class Glavna {
      * @param osobe    referenca na polje unesenih osoba
      */
 
-    private static void unosOsoba(Scanner input, Set<Zupanija> zupanije, Set<Bolest> bolesti, List<Osoba> osobe) {
+    private static void unosOsoba(Scanner input, SortedSet<Zupanija> zupanije, Set<Bolest> bolesti, List<Osoba> osobe) {
         boolean ispravanUnos = true;
         int odabranaZupanija = 0, brojOsoba = 0;
         int odabranaBolest = 0;
