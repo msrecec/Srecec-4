@@ -36,6 +36,7 @@ public class Glavna {
         Set<Simptom> simptomi = new HashSet<>();
         Set<Bolest> bolesti = new HashSet<>();
         List<Osoba> osobe = new ArrayList<>();
+        Map<Bolest, List<Osoba>> OsobeZarazeneVirusima = new HashMap<>();
 
         // Unos Zupanija
 
@@ -53,10 +54,65 @@ public class Glavna {
 
         unosOsoba(input, zupanije, bolesti, osobe);
 
+        // Populacija Mape OsobeZarazeneVirusima
+
+        populacijaMapeOsobeZarazeneVirusima(osobe, OsobeZarazeneVirusima);
+
         // Ispis osoba
 
         ispisOsoba(osobe);
 
+        ispisVirusaIOsobaZarazenihVirusima(OsobeZarazeneVirusima);
+    }
+
+    /**
+     * Ispisuje Bolesti/Viruse i osobe koje ih imaju
+     *
+     * @param osobeZarazeneVirusima mapa osoba i virusa
+     */
+
+    private static void ispisVirusaIOsobaZarazenihVirusima(Map<Bolest, List<Osoba>> osobeZarazeneVirusima) {
+        for (Bolest bolest : osobeZarazeneVirusima.keySet()) {
+
+            System.out.print("Od " + ((bolest instanceof Virus) ? "virusa" : "bolesti") + " " + bolest.getNaziv());
+
+            if (osobeZarazeneVirusima.get(bolest).size() > 1) {
+                System.out.print(" boluju: ");
+                for (Osoba osoba : osobeZarazeneVirusima.get(bolest)) {
+                    System.out.print(osoba.getIme() + " " + osoba.getPrezime());
+                }
+                System.out.print("\n");
+            } else if (osobeZarazeneVirusima.get(bolest).size() == 1) {
+                System.out.print(" boluje: ");
+                System.out.println(osobeZarazeneVirusima.get(bolest).get(0).getIme() + " " + osobeZarazeneVirusima.get(bolest).get(0).getPrezime());
+            }
+        }
+    }
+
+    /**
+     * Popunjava mapu osobeZarazeneVirusima sa osobama i virusima kojima su zarazene
+     *
+     * @param osobe                 unesene osobe
+     * @param osobeZarazeneVirusima konacna mapa
+     */
+
+    private static void populacijaMapeOsobeZarazeneVirusima(List<Osoba> osobe, Map<Bolest, List<Osoba>> osobeZarazeneVirusima) {
+
+        for (Osoba osoba : osobe) {
+
+            List<Osoba> zarazeneOsobe;
+
+            if (osobeZarazeneVirusima.containsKey(osoba.getZarazenBolescu())) {
+
+                zarazeneOsobe = osobeZarazeneVirusima.get(osoba.getZarazenBolescu());
+
+            } else {
+                zarazeneOsobe = new ArrayList<>();
+
+            }
+            zarazeneOsobe.add(osoba);
+            osobeZarazeneVirusima.put(osoba.getZarazenBolescu(), zarazeneOsobe);
+        }
     }
 
     /**
