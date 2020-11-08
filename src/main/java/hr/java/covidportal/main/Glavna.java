@@ -162,10 +162,10 @@ public class Glavna {
         // Unos broja županija i validacija unosa
 
         brojZupanija = unosUnutarGranica(input, "Unesite broj zupanija koje želite unijeti: ",
-                "Pogrešan unos! Molimo unesite pozitivan cijeli broj.",
+                "Pogrešan unos! Molimo unesite broj veci od 0.",
                 "zupanija",
                 "zupanija",
-                (a) -> (a < 0)
+                (a) -> (a < 1)
         );
 
         // Unos županija
