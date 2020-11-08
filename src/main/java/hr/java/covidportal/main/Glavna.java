@@ -10,6 +10,7 @@ import org.slf4j.LoggerFactory;
 
 import java.math.BigDecimal;
 import java.util.*;
+import java.util.function.Function;
 
 /**
  * Služi za unos Županija, Simptoma, Bolesti, Osoba i služi za ispis Osoba
@@ -157,50 +158,15 @@ public class Glavna {
     private static void unosZupanija(Scanner input, SortedSet<Zupanija> zupanije) {
         String nazivZupanije;
         int brojStanovnika = 0, brojZupanija = 0, brojZarazenih = 0;
-        boolean ispravanUnos = true;
 
         // Unos broja županija i validacija unosa
 
-        do {
-
-            try {
-
-                System.out.printf("Unesite broj županija koje želite unijeti: ");
-
-                brojZupanija = input.nextInt();
-
-                input.nextLine();
-
-                if (brojZupanija < 0) {
-
-                    System.out.println("Pogrešan unos! Molimo unesite pozitivan cijeli broj.");
-
-                    logger.error("Prilikom unosa broja županija unesen je negativan broj.");
-
-                    ispravanUnos = false;
-
-                } else {
-
-                    logger.info("Unesen je broj županija: " + Integer.toString(brojZupanija));
-
-                    ispravanUnos = true;
-
-                }
-
-            } catch (InputMismatchException ex) {
-
-                logger.error("Prilikom unosa broja županija je došlo do pogreške. Unesen je String koji se ne može parsirati!", ex);
-
-                System.out.println("Došlo je do pogreške kod unosa brojčane vrijednosti! Molimo ponovite unos.");
-
-                input.nextLine();
-
-                ispravanUnos = false;
-
-            }
-
-        } while (!ispravanUnos);
-
+        brojZupanija = unosUnutarGranica(input, "Unesite broj zupanija koje želite unijeti: ",
+                "Pogrešan unos! Molimo unesite pozitivan cijeli broj.",
+                "zupanija",
+                "zupanija",
+                (a) -> (a < 0)
+        );
 
         // Unos županija
 
@@ -215,90 +181,97 @@ public class Glavna {
 
             // Unos i validacija unosa broja stanovnika
 
-            do {
-
-                try {
-
-                    System.out.printf("Unesite broj stanovnika: ");
-
-                    brojStanovnika = input.nextInt();
-
-                    input.nextLine();
-
-                    if (brojStanovnika < 0) {
-
-                        System.out.println("Pogrešan unos! Molimo unesite pozitivan cijeli broj.");
-
-                        logger.error("Prilikom unosa broja stanovnika unesen je negativan broj.");
-
-                        ispravanUnos = false;
-
-                    } else {
-
-                        logger.info("Unesen je broj stanovnika: " + Integer.toString(brojStanovnika));
-
-                        ispravanUnos = true;
-
-                    }
-
-
-                } catch (InputMismatchException ex) {
-
-                    logger.error("Prilikom unosa broja stanovnika je došlo do pogreške. Unesen je String koji se ne može parsirati!", ex);
-
-                    System.out.println("Došlo je do pogreške kod unosa brojčane vrijednosti! Molimo ponovite unos.");
-
-                    input.nextLine();
-
-                    ispravanUnos = false;
-                }
-            } while (!ispravanUnos);
+            brojStanovnika = unosUnutarGranica(input, "Unesite broj stanovnika koje želite unijeti: ",
+                    "Pogrešan unos! Molimo unesite pozitivan cijeli broj.",
+                    "stanovnika",
+                    "stanovnika",
+                    (a) -> (a < 0)
+            );
 
             // Unos i validacija broja zaraženih osoba
 
-            do {
+            brojZarazenih = unosUnutarGranica(input, "Unesite broj zaraženih koje želite unijeti: ",
+                    "Pogrešan unos! Molimo unesite pozitivan cijeli broj.",
+                    "zaraženih",
+                    "zaraženih",
+                    (a) -> (a < 0)
+            );
 
-                try {
-
-                    System.out.printf("Unesite broj zaraženih stanovnika: ");
-
-                    brojZarazenih = input.nextInt();
-
-                    input.nextLine();
-
-                    if (brojZarazenih < 0) {
-
-                        System.out.println("Pogrešan unos! Molimo unesite pozitivan cijeli broj.");
-
-                        logger.error("Prilikom unosa broja zaraženih stanovnika unesen je negativan broj.");
-
-                        ispravanUnos = false;
-
-                    } else {
-
-                        logger.info("Unesen je broj zaraženih stanovnika: " + Integer.toString(brojZupanija));
-
-                        ispravanUnos = true;
-
-                    }
-
-                } catch (InputMismatchException ex) {
-
-                    logger.error("Prilikom unosa broja zaraženih stanovnika je došlo do pogreške. Unesen je String koji se ne može parsirati!", ex);
-
-                    System.out.println("Došlo je do pogreške kod unosa brojčane vrijednosti! Molimo ponovite unos.");
-
-                    input.nextLine();
-
-                    ispravanUnos = false;
-
-                }
-
-            } while (!ispravanUnos);
+            // Dodavanje nove županije u Sortirani Set Županija
 
             zupanije.add(new Zupanija(nazivZupanije, brojStanovnika, brojZarazenih));
 
         }
+    }
+
+    /**
+     * Definira strukturu callback funkcije
+     *
+     * @param <First>  Prvi Argument
+     * @param <Second> Drugi Argument
+     */
+
+    @FunctionalInterface
+    interface CustomFunctionalInterface<First, Second> {
+        public Second apply(First first);
+    }
+
+    /**
+     * Unosi vrijednosti unutar granica programa te ih
+     *
+     * @param input              korisnički unos
+     * @param outputMessage      ispis korisniku
+     * @param outputErrorMessage ispis greške korisniku
+     * @param logErrorMessage    ispis greške u log
+     * @param logInfoMessage     ispis uspjeha u log
+     * @param callback           callback funkcija
+     * @return broj koji smo unijeli
+     */
+
+    private static int unosUnutarGranica(Scanner input, String outputMessage, String outputErrorMessage, String logErrorMessage, String logInfoMessage, CustomFunctionalInterface<Integer, Boolean> callback) {
+        int broj = 0;
+        boolean ispravanUnos = true;
+
+        do {
+
+            try {
+
+                System.out.printf(outputMessage);
+
+                broj = input.nextInt();
+
+                input.nextLine();
+
+                if (callback.apply(broj)) {
+
+                    System.out.println(outputErrorMessage);
+
+                    logger.error("Prilikom unosa" + logErrorMessage + "unesen je broj izvan raspona dopuštenih brojeva.");
+
+                    ispravanUnos = false;
+
+                } else {
+
+                    logger.info("Unesen je " + logInfoMessage + ": " + Integer.toString(broj));
+
+                    ispravanUnos = true;
+
+                }
+
+            } catch (InputMismatchException ex) {
+
+                logger.error("Prilikom unosa " + logErrorMessage + " je došlo do pogreške. Unesen je String koji se ne može parsirati!", ex);
+
+                System.out.println("Došlo je do pogreške kod unosa brojčane vrijednosti! Molimo ponovite unos.");
+
+                input.nextLine();
+
+                ispravanUnos = false;
+            }
+
+        } while (!ispravanUnos);
+
+        return broj;
     }
 
     /**
@@ -318,49 +291,15 @@ public class Glavna {
         String nazivSimptoma;
         String vrijednostSimptoma;
         int brojSimptoma = 0;
-        boolean ispravanUnos = true;
 
         // Unos broja simptoma i validacija unosa
 
-        do {
-
-            try {
-
-                System.out.printf("Unesite broj simptoma koje želite unijeti: ");
-
-                brojSimptoma = input.nextInt();
-
-                input.nextLine();
-
-                if (brojSimptoma < 0) {
-
-                    System.out.println("Pogrešan unos! Molimo unesite pozitivan cijeli broj.");
-
-                    logger.error("Prilikom unosa broja simptoma unesen je negativan broj.");
-
-                    ispravanUnos = false;
-
-                } else {
-
-                    logger.info("Unesen je broj simptoma: " + Integer.toString(brojSimptoma));
-
-                    ispravanUnos = true;
-
-                }
-
-            } catch (InputMismatchException ex) {
-
-                logger.error("Prilikom unosa broja simptoma je došlo do pogreške. Unesen je String koji se ne može parsirati!", ex);
-
-                System.out.println("Došlo je do pogreške kod unosa brojčane vrijednosti! Molimo ponovite unos.");
-
-                input.nextLine();
-
-                ispravanUnos = false;
-
-            }
-
-        } while (!ispravanUnos);
+        brojSimptoma = unosUnutarGranica(input, "Unesite broj simptoma koje želite unijeti: ",
+                "Pogrešan unos! Molimo unesite pozitivan cijeli broj.",
+                "simptoma",
+                "simptoma",
+                (a) -> (a < 0)
+        );
 
         // Unos simptoma
 
@@ -449,92 +388,25 @@ public class Glavna {
         int brojOdabranihSimptoma = 0, odabraniSimptom;
         Set<Simptom> odabraniSimptomi;
         int bolestIliVirus = 0, brojBolesti = 0, brojVirusa = 0;
-        boolean ispravanUnos;
+        boolean ispravanUnos = true;
 
         // Unos broja bolesti i validacija unosa
 
-        do {
-
-            try {
-
-                System.out.printf("Unesite broj bolesti koje želite unijeti: ");
-
-                brojBolesti = input.nextInt();
-
-                input.nextLine();
-
-                if (brojBolesti < 0) {
-
-                    System.out.println("Pogrešan unos! Molimo unesite pozitivan cijeli broj.");
-
-                    logger.error("Prilikom unosa broja bolesti unesen je negativan broj.");
-
-                    ispravanUnos = false;
-
-                } else {
-
-                    logger.info("Unesen je broj bolesti: " + Integer.toString(brojBolesti));
-
-                    ispravanUnos = true;
-
-                }
-
-            } catch (InputMismatchException ex) {
-
-                logger.error("Prilikom unosa broja bolesti je došlo do pogreške. Unesen je String koji se ne može parsirati!", ex);
-
-                System.out.println("Došlo je do pogreške kod unosa brojčane vrijednosti! Molimo ponovite unos.");
-
-                input.nextLine();
-
-                ispravanUnos = false;
-
-            }
-
-        } while (!ispravanUnos);
+        brojBolesti = unosUnutarGranica(input, "Unesite broj bolesti koje želite unijeti: ",
+                "Pogrešan unos! Molimo unesite pozitivan cijeli broj.",
+                "bolesti",
+                "bolesti",
+                (a) -> (a < 0)
+        );
 
         // Unos broja virusa i validacija unosa
 
-        do {
-
-            try {
-
-                System.out.printf("Unesite broj virusa koje želite unijeti: ");
-
-                brojVirusa = input.nextInt();
-
-                input.nextLine();
-
-                if (brojVirusa < 0) {
-
-                    System.out.println("Pogrešan unos! Molimo unesite pozitivan cijeli broj.");
-
-                    logger.error("Prilikom unosa broja virusa unesen je negativan broj.");
-
-                    ispravanUnos = false;
-
-                } else {
-
-                    logger.info("Unesen je broj virusa: " + Integer.toString(brojVirusa));
-
-                    ispravanUnos = true;
-
-                }
-
-            } catch (InputMismatchException ex) {
-
-                logger.error("Prilikom unosa broja virusa je došlo do pogreške. Unesen je String koji se ne može parsirati!", ex);
-
-                System.out.println("Došlo je do pogreške kod unosa brojčane vrijednosti! Molimo ponovite unos.");
-
-                input.nextLine();
-
-                ispravanUnos = false;
-
-            }
-
-        } while (!ispravanUnos);
-
+        brojVirusa = unosUnutarGranica(input, "Unesite broj virusa koje želite unijeti: ",
+                "Pogrešan unos! Molimo unesite pozitivan cijeli broj.",
+                "virusa",
+                "virusa",
+                (a) -> (a < 0)
+        );
 
         System.out.printf("Unesite podatke o %d bolesti ili virusa:%n", brojBolesti + brojVirusa);
 
@@ -542,45 +414,10 @@ public class Glavna {
 
             // Odabir unosa bolesti ili virusa i validacija unosa
 
-            do {
-
-                try {
-
-                    System.out.printf("Unosite li bolest ili virus ?%n1)BOLEST%n2)VIRUS%n");
-
-                    bolestIliVirus = input.nextInt();
-
-                    input.nextLine();
-
-                    if (bolestIliVirus != 1 && bolestIliVirus != 2) {
-
-                        System.out.println("Pogresan unos! Molimo unesite jedan od ponuđenih brojeva.");
-
-                        logger.error("Prilikom unosa Bolesti ili Virusa unesen je broj izvan raspona dopuštenih brojeva.");
-
-                        ispravanUnos = false;
-
-                    } else {
-
-                        logger.info((bolestIliVirus == 1 ? "Unesena je  Bolest: " : "Unesen je Virus: ")
-                                + Integer.toString(bolestIliVirus));
-
-                        ispravanUnos = true;
-
-                    }
-
-                } catch (InputMismatchException ex) {
-
-                    logger.error("Prilikom unosa bolesti ili virusa je došlo do pogreške. Unesen je String koji se ne može parsirati!", ex);
-
-                    System.out.println("Došlo je do pogreške kod unosa brojčane vrijednosti! Molimo ponovite unos.");
-
-                    input.nextLine();
-
-                    ispravanUnos = false;
-                }
-
-            } while (!ispravanUnos);
+            bolestIliVirus = unosUnutarGranica(input, "Unosite li bolest ili virus ?%n1)BOLEST%n2)VIRUS%n",
+                    "Pogresan unos! Molimo unesite jedan od ponuđenih brojeva.",
+                    "Bolesti ili Virusa", "Bolest ili Virus",
+                    (a) -> (a != 1 && a != 2));
 
             do {
 
@@ -596,43 +433,10 @@ public class Glavna {
 
                 // Unos Broja Odabranih Simptoma i validacija unosa
 
-                do {
-
-                    try {
-                        System.out.printf("Unesite broj simptoma: ");
-
-                        brojOdabranihSimptoma = input.nextInt();
-
-                        input.nextLine();
-
-                        if (brojOdabranihSimptoma > simptomi.size() || brojOdabranihSimptoma < 1) {
-
-                            System.out.println("Pogresan unos broja simptoma ! Unesen je broj izvan raspona ukupnog broja mogućih simptoma.");
-
-                            logger.error("Prilikom unosa broja simptoma unesen je broj izvan raspona ukupnog broja mogućih simptoma.");
-
-                            ispravanUnos = false;
-
-                        } else {
-
-                            logger.info("Uneseni broj simptoma: " + Integer.toString(brojOdabranihSimptoma));
-
-                            ispravanUnos = true;
-
-                        }
-
-                    } catch (InputMismatchException ex) {
-
-                        logger.error("Prilikom unosa broja simptoma je došlo do pogreške. Unesen je String koji se ne može parsirati!", ex);
-
-                        System.out.println("Došlo je do pogreške kod unosa brojčane vrijednosti! Molimo ponovite unos.");
-
-                        input.nextLine();
-
-                        ispravanUnos = false;
-                    }
-
-                } while (!ispravanUnos);
+                brojOdabranihSimptoma = unosUnutarGranica(input, "Unesite broj simptoma: ",
+                        "Pogresan unos broja simptoma ! Unesen je broj izvan raspona ukupnog broja mogućih simptoma.",
+                        "simptoma", "simptoma",
+                        (a) -> (a > simptomi.size() || a < 1));
 
                 // Unos odabranih simptoma i validacija
 
@@ -850,45 +654,12 @@ public class Glavna {
 
         // Unos broja osoba i validacija unosa
 
-        do {
-
-            try {
-
-                System.out.printf("Unesite broj osoba koje želite unijeti: ");
-
-                brojOsoba = input.nextInt();
-
-                input.nextLine();
-
-                if (brojOsoba < 0) {
-
-                    System.out.println("Pogrešan unos! Molimo unesite pozitivan cijeli broj.");
-
-                    logger.error("Prilikom unosa broja osoba unesen je negativan broj.");
-
-                    ispravanUnos = false;
-
-                } else {
-
-                    logger.info("Unesen je broj osoba: " + Integer.toString(brojOsoba));
-
-                    ispravanUnos = true;
-
-                }
-
-            } catch (InputMismatchException ex) {
-
-                logger.error("Prilikom unosa broja osoba je došlo do pogreške. Unesen je String koji se ne može parsirati!", ex);
-
-                System.out.println("Došlo je do pogreške kod unosa brojčane vrijednosti! Molimo ponovite unos.");
-
-                input.nextLine();
-
-                ispravanUnos = false;
-
-            }
-
-        } while (!ispravanUnos);
+        brojOsoba = unosUnutarGranica(input, "Unesite broj osoba koje želite unijeti: ",
+                "Pogrešan unos! Molimo unesite pozitivan cijeli broj.",
+                "osoba",
+                "osoba",
+                (a) -> (a < 0)
+        );
 
         for (int i = 0; i < brojOsoba; ++i) {
 
@@ -904,44 +675,12 @@ public class Glavna {
 
             // Unos starosti i validacija unosa
 
-            do {
-
-                try {
-
-                    System.out.printf("Unesite starost osobe: ");
-
-                    starost = input.nextInt();
-
-                    input.nextLine();
-
-                    if (starost < 0) {
-                        System.out.println("Unesena vrijednost ne smije biti negativan broj! Molimo ponovite unos.");
-
-                        logger.error("Prilikom unosa starosti osobe, unesen je negativan broj: " + Integer.toString(starost));
-
-                        ispravanUnos = false;
-
-                    } else {
-
-                        logger.info("Unesena je starost osobe: " + Integer.toString(starost));
-
-                        ispravanUnos = true;
-
-                    }
-
-                } catch (InputMismatchException ex) {
-
-                    logger.error("Prilikom unosa brojčane vrijednosti kod starosti osobe je došlo do pogreške. Unesen je String koji se ne može parsirati!", ex);
-
-                    System.out.println("Došlo je do pogreške kod unosa brojčane vrijednosti! Molimo ponovite unos.");
-
-                    input.nextLine();
-
-                    ispravanUnos = false;
-                }
-
-            } while (!ispravanUnos);
-
+            starost = unosUnutarGranica(input, "Unesite starost koju želite unijeti: ",
+                    "Pogrešan unos! Molimo unesite pozitivan cijeli broj.",
+                    "starost",
+                    "starost",
+                    (a) -> (a < 0)
+            );
 
             // Unos zupanije prebivalista i validacija
 
@@ -1094,48 +833,11 @@ public class Glavna {
 
                 // Unos broja kontaktiranih osoba i validacija
 
-                do {
-
-                    try {
-
-                        System.out.println("Unesite broj osoba koje su bile u kontaktu s tom osobom:");
-
-                        brojKontaktiranihOsoba = input.nextInt();
-
-                        input.nextLine();
-
-                        // Provjera unosa broja kontaktiranih osoba
-
-                        if (brojKontaktiranihOsoba > i || brojKontaktiranihOsoba < 0) {
-
-                            System.out.println("Greska u unosu broja kontaktiranih osoba. Broj trenutno unesenih osoba je: " + Integer.toString(i));
-
-                            logger.error("Prilikom unosa broja kontaktiranih osoba, unesen je broj izvan raspona unesenog broja osoba: "
-                                    + Integer.toString(brojKontaktiranihOsoba));
-
-                            ispravanUnos = false;
-
-                        } else {
-
-                            ispravanUnos = true;
-
-                            logger.info("Unesen je broj kontaktiranih osoba: " + Integer.toString(brojKontaktiranihOsoba));
-
-                        }
-
-                    } catch (InputMismatchException ex) {
-
-                        logger.error("Prilikom unosa brojčane vrijednosti kod biranja broja kontaktiranih osoba je došlo do pogreške. Unesen je String koji se ne može parsirati!", ex);
-
-                        System.out.println("Došlo je do pogreške kod unosa brojčane vrijednosti! Molimo ponovite unos.");
-
-                        input.nextLine();
-
-                        ispravanUnos = false;
-
-                    }
-
-                } while (!ispravanUnos);
+                int finalI = i;
+                brojKontaktiranihOsoba = unosUnutarGranica(input, "Unesite broj osoba koje su bile u kontaktu s tom osobom: ",
+                        "Greska u unosu broja kontaktiranih osoba. Broj trenutno unesenih osoba je: " + Integer.toString(finalI),
+                        "kontaktiranih osoba", "kontaktiranih osoba",
+                        (a) -> (a > finalI || a < 0));
 
                 if (brojKontaktiranihOsoba > 0) {
 
